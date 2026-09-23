@@ -23,7 +23,7 @@ SourceFuse turns this into an explicit data model and deterministic policy engin
 1. Same input candidates + same policy must always produce the same result.
 2. A locked value cannot be silently replaced.
 3. Conflicting locked values must produce an unresolved conflict.
-4. Confirmed values outrank ordinary proposals unless policy explicitly changes this in a future version.
+4. Confirmed values outrank ordinary proposals by default; an explicit policy may disable that precedence.
 5. Confidence is a tie-break signal, not universal truth.
 6. Every resolved or unresolved decision must preserve source provenance.
 7. The engine must emit a decision trace sufficient to explain the applied rules.
