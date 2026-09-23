@@ -1,0 +1,65 @@
+{
+  "schema_version": "sourcefuse.record.v1",
+  "fields": [
+    {
+      "name": "name",
+      "candidates": [
+        {
+          "value": "Alice",
+          "source_id": "profile",
+          "source_kind": "human",
+          "authority": 10,
+          "confidence": 80,
+          "revision": 1,
+          "state": "locked"
+        }
+      ]
+    },
+    {
+      "name": "phone",
+      "candidates": [
+        {
+          "value": "13800000000",
+          "source_id": "rule_a",
+          "source_kind": "rule",
+          "authority": 50,
+          "confidence": 90,
+          "revision": 2,
+          "state": "proposed"
+        },
+        {
+          "value": "13900000000",
+          "source_id": "rule_b",
+          "source_kind": "rule",
+          "authority": 50,
+          "confidence": 90,
+          "revision": 2,
+          "state": "proposed"
+        }
+      ]
+    },
+    {
+      "name": "city",
+      "candidates": [
+        {
+          "value": "Nanjing",
+          "source_id": "crm",
+          "source_kind": "external",
+          "authority": 40,
+          "confidence": 80,
+          "revision": 1,
+          "state": "proposed"
+        },
+        {
+          "value": "Nanjing",
+          "source_id": "operator",
+          "source_kind": "human",
+          "authority": 40,
+          "confidence": 80,
+          "revision": 1,
+          "state": "proposed"
+        }
+      ]
+    }
+  ]
+}

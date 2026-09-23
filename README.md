@@ -8,6 +8,19 @@ SourceFuse answers one narrow question:
 
 Typical sources include humans, devices, rules, models, and external systems. The core library produces a deterministic decision plus an explainable decision trace.
 
+## 60-second demo
+
+```bash
+moon update
+moon run cmd/sourcefuse examples/human-ocr-model/record.json
+```
+
+The output is a versioned decision report containing the canonical value,
+conflict state, applied rule trace, and complete source provenance.
+
+See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the guided walkthrough and
+[examples/README.md](examples/README.md) for all bundled scenarios.
+
 ## Example
 
 ```text
@@ -72,6 +85,21 @@ Gate 4 complete — versioned JSON wire schemas and adapters.
 Gate 4.5 complete — provenance-preserving decision reports, semantic regression
 guards, and cross-target CI hardening.
 
+Gate 5 complete — runnable examples, native reference CLI, quickstart, and
+evaluation-oriented documentation.
+
+## Architecture
+
+```text
+typed candidates ──> core/ ──> DecisionReport ──> wire/ ──> JSON
+                                               │
+                                               └── cmd/sourcefuse
+                                                   native reference adapter
+```
+
+The reusable reconciliation engine remains independent of file IO, command-line
+parsing, HTTP, databases, system time, and AI services.
+
 ## License
 
 Apache-2.0
@@ -118,4 +146,5 @@ The decision-report wire output includes both `considered` and `supporters`
 candidate arrays, so the rule trace can be audited against the original
 source evidence rather than only aggregate counts.
 
-See [docs/WIRE_SCHEMA.md](docs/WIRE_SCHEMA.md).
+See [docs/WIRE_SCHEMA.md](docs/WIRE_SCHEMA.md), [docs/CLI.md](docs/CLI.md),
+and [examples/README.md](examples/README.md).

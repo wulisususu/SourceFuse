@@ -1,0 +1,47 @@
+{
+  "schema_version": "sourcefuse.record.v1",
+  "default_policy": {
+    "normalization": "exact",
+    "confirmed_dominates": false,
+    "rank_order": ["authority", "confidence", "revision"],
+    "source_authorities": [
+      { "source_kind": "device", "authority": 100 },
+      { "source_kind": "human", "authority": 80 },
+      { "source_kind": "model", "authority": 20 }
+    ]
+  },
+  "fields": [
+    {
+      "name": "id_number",
+      "candidates": [
+        {
+          "value": "320102199901011234",
+          "source_id": "card_reader",
+          "source_kind": "device",
+          "authority": 1,
+          "confidence": 99,
+          "revision": 1,
+          "state": "proposed"
+        },
+        {
+          "value": "320102199901011234",
+          "source_id": "operator",
+          "source_kind": "human",
+          "authority": 999,
+          "confidence": 65,
+          "revision": 2,
+          "state": "proposed"
+        },
+        {
+          "value": "320102199901011239",
+          "source_id": "vision_model",
+          "source_kind": "model",
+          "authority": 999,
+          "confidence": 100,
+          "revision": 9,
+          "state": "proposed"
+        }
+      ]
+    }
+  ]
+}

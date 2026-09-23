@@ -53,6 +53,47 @@ jobs:
       - name: Build native
         run: moon build --target native
 
+      - name: Smoke test reference CLI examples
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import subprocess
+
+          def run(path):
+              result = subprocess.run(
+                  ["moon", "run", "cmd/sourcefuse", path],
+                  check=True,
+                  text=True,
+                  capture_output=True,
+              )
+              return json.loads(result.stdout)
+
+          human = run("examples/human-ocr-model/record.json")
+          field = human["fields"][0]
+          assert field["value"] == "张珊"
+          assert field["supporter_count"] == 2
+          assert [item["source_id"] for item in field["supporters"]] == ["operator", "ocr"]
+
+          authority = run("examples/device-human-model/record.json")
+          field = authority["fields"][0]
+          assert field["value"] == "320102199901011234"
+          assert any(
+              step["rule"] == "source_authority_override_applied"
+              for step in field["trace"]
+          )
+
+          conflict = run("examples/conflicted-record/record.json")
+          assert conflict["summary"] == {
+              "declared_fields": 3,
+              "resolved_fields": 2,
+              "conflicted_fields": 1,
+          }
+          phone = next(item for item in conflict["fields"] if item["name"] == "phone")
+          assert phone["conflict"] == "equal_priority_conflict"
+          PY
+
   cross-target:
     runs-on: ubuntu-latest
 

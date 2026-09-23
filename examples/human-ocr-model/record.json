@@ -1,0 +1,42 @@
+{
+  "schema_version": "sourcefuse.record.v1",
+  "default_policy": {
+    "normalization": "ascii_trim_case_fold",
+    "confirmed_dominates": true,
+    "rank_order": ["authority", "confidence", "revision"]
+  },
+  "fields": [
+    {
+      "name": "name",
+      "candidates": [
+        {
+          "value": " 张珊 ",
+          "source_id": "operator",
+          "source_kind": "human",
+          "authority": 1,
+          "confidence": 70,
+          "revision": 2,
+          "state": "confirmed"
+        },
+        {
+          "value": "张珊",
+          "source_id": "ocr",
+          "source_kind": "model",
+          "authority": 999,
+          "confidence": 98,
+          "revision": 3,
+          "state": "proposed"
+        },
+        {
+          "value": "张山",
+          "source_id": "llm",
+          "source_kind": "model",
+          "authority": 999,
+          "confidence": 91,
+          "revision": 4,
+          "state": "proposed"
+        }
+      ]
+    }
+  ]
+}
