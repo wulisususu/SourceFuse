@@ -60,7 +60,7 @@ the original candidate values remain available in provenance.
 
 Gate 1 complete — deterministic reconciliation core.
 
-Gate 2 in progress — normalization and configurable policy.
+Gate 2 complete — normalization and configurable policy.
 
 ## License
 
