@@ -94,6 +94,8 @@ pub(all) enum DecisionRule {
   LockedValue
   LockedValuesConflict
   ConfirmedDominates
+  ValuesNormalized
+  SourceAuthorityOverrideApplied
   HigherAuthority
   HigherConfidence
   NewerRevision
