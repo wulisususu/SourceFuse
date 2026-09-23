@@ -120,8 +120,8 @@ pub extend DecisionStep with @debug.Debug::{to_repr}
 /// Output of reconciliation.
 ///
 /// considered preserves all caller evidence.
-/// supporters contains every original candidate whose exact value equals the
-/// resolved value, including lower-ranked corroborating evidence.
+/// supporters contains every original candidate whose normalized value equals
+/// the resolved canonical value, including lower-ranked corroborating evidence.
 pub(all) struct ReconcileResult {
   status : ReconcileStatus
   value : String?

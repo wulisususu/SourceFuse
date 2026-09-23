@@ -52,7 +52,7 @@ pub extend ReconcilePolicy with Eq::{not_equal, equal}
 pub extend ReconcilePolicy with @debug.Debug::{to_repr}
 
 ///|
-/// The Gate 1 behavior preserved as the default policy.
+/// Stable default reconciliation policy.
 pub fn default_policy() -> ReconcilePolicy {
   {
     normalization: Exact,
