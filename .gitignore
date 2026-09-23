@@ -1,0 +1,14 @@
+target/
+_build/
+.moon/
+.mooncakes/
+*.log
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+tmp/
+.temp/
