@@ -131,5 +131,63 @@ jobs:
             exit 1
           fi
 
-      - name: Validate package
-        run: moon package --list
+      - name: Validate package file set
+        shell: bash
+        run: |
+          moon package --list | tee /tmp/sourcefuse-package-files.txt
+          if grep -E '(^|/)(target|tmp|\.temp)/|\.log$|\.env($|\.)' /tmp/sourcefuse-package-files.txt; then
+            echo "package contains generated or local-only files"
+            exit 1
+          fi
+
+      - name: Validate release metadata
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          manifest = pathlib.Path("moon.mod").read_text(encoding="utf-8")
+          match = re.search(r'^version\s*=\s*"([^"]+)"', manifest, re.MULTILINE)
+          assert match, "moon.mod version is missing"
+          version = match.group(1)
+
+          changelog = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          assert f"## [{version}]" in changelog, f"CHANGELOG missing {version}"
+
+          readme = pathlib.Path("README.md").read_text(encoding="utf-8")
+          assert f"v{version}" in readme, f"README missing v{version}"
+          PY
+
+      - name: Generate and guard public API
+        shell: bash
+        run: |
+          moon info --target native
+          python3 - <<'PY'
+          from pathlib import Path
+
+          core = Path("core/pkg.generated.mbti").read_text(encoding="utf-8")
+          wire = Path("wire/pkg.generated.mbti").read_text(encoding="utf-8")
+
+          required_core = [
+              "pub fn candidate(",
+              "pub fn default_policy(",
+              "pub fn policy(",
+              "pub fn reconcile(",
+              "pub fn reconcile_with_policy(",
+              "pub fn reconcile_record(",
+              "pub fn decision_report(",
+          ]
+          required_wire = [
+              "pub const RECORD_SCHEMA",
+              "pub const DECISION_REPORT_SCHEMA",
+              "pub fn parse_record_document(",
+              "pub fn decision_report_json(",
+              "pub fn reconcile_record_json(",
+          ]
+
+          for symbol in required_core:
+              assert symbol in core, f"core public API missing: {symbol}"
+          for symbol in required_wire:
+              assert symbol in wire, f"wire public API missing: {symbol}"
+          PY

@@ -1,0 +1,71 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  MOONBIT_VERSION: 0.10.14+7d59c7ec9
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install MoonBit
+        shell: bash
+        run: |
+          curl --retry 3 --retry-all-errors --retry-delay 3 -fsSL \
+            https://cli.moonbitlang.com/install/unix.sh \
+            | bash -s "$MOONBIT_VERSION"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Validate tag and manifest version
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          assert tag.startswith("v"), f"release tag must start with v: {tag}"
+
+          manifest = pathlib.Path("moon.mod").read_text(encoding="utf-8")
+          match = re.search(r'^version\s*=\s*"([^"]+)"', manifest, re.MULTILINE)
+          assert match, "moon.mod version is missing"
+          version = match.group(1)
+          assert tag == f"v{version}", f"tag {tag} != moon.mod version v{version}"
+
+          changelog = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          assert f"## [{version}]" in changelog, f"CHANGELOG missing {version}"
+          PY
+
+      - name: Resolve dependencies
+        run: moon update
+
+      - name: Release checks
+        shell: bash
+        run: |
+          moon check --target all --deny-warn
+          moon test --target all
+          moon build --target all
+          moon package --list
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" \
+              --title "SourceFuse $GITHUB_REF_NAME" \
+              --generate-notes

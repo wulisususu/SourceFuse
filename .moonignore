@@ -1,0 +1,13 @@
+# Local/generated output that must never enter a published source archive.
+target/
+*.log
+.env
+.env.*
+tmp/
+.temp/
+
+# Editor state.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
