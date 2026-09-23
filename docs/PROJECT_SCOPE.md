@@ -62,6 +62,6 @@ No system clock is used. `revision` is supplied by the caller.
 - Gate 1: ✅ candidate/source/result model + deterministic core.
 - Gate 2: ✅ normalization + configurable reconciliation policy.
 - Gate 3: ✅ structured multi-field reconciliation, record conflicts, decision reports.
-- Gate 4: next — JSON serialization, stable wire schema, and application adapters.
-- Gate 5: examples, CLI/demo adapter, documentation.
+- Gate 4: ✅ stable v1 JSON wire schemas, structured parse errors, and adapter boundary.
+- Gate 5: next — examples, CLI/demo adapter, documentation.
 - Gate 6: cross-target CI and submission hardening.
