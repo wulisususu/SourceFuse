@@ -5,6 +5,25 @@ All notable changes to SourceFuse are documented here.
 The project follows semantic versioning. Wire schema identifiers are versioned
 independently and are treated as compatibility contracts.
 
+## [0.1.1] - 2026-09-23
+
+Submission-review hardening release.
+
+### Changed
+
+- rewrote the repository front page around the reusable library contract rather
+  than internal implementation milestones;
+- added a reviewer-first evaluation path and explicit design-differentiation
+  document;
+- clarified that supporters match the resolved canonical value after
+  normalization;
+- removed internal gate terminology from public core API comments.
+
+### Compatibility
+
+- no reconciliation behavior or wire schema changed;
+- `sourcefuse.record.v1` and `sourcefuse.decision-report.v1` remain unchanged.
+
 ## [0.1.0] - 2026-09-23
 
 Initial public release.

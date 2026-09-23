@@ -214,7 +214,7 @@ fn conflict_result(
 ///|
 /// Reconcile candidate values using the stable default policy.
 ///
-/// This preserves the Gate 1 precedence:
+/// Default precedence:
 /// locked -> confirmed -> authority -> confidence -> revision.
 pub fn reconcile(candidates : Array[Candidate]) -> ReconcileResult {
   reconcile_with_policy(candidates, default_policy())

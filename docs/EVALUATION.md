@@ -1,17 +1,31 @@
 # Evaluation path
 
-A reviewer can verify the project without reading the whole repository.
+A reviewer can verify SourceFuse without reading the whole repository.
 
-## 1. Understand the problem
+## 1. Apply the library-only test
 
-Read the first section of `README.md` and `docs/PROJECT_SCOPE.md`.
+Ignore `cmd/` and `examples/` first.
 
-SourceFuse solves deterministic arbitration when multiple sources disagree on
-one logical field. It is not an agent framework, HTTP tool, or workflow product.
+The remaining `core/`, `wire/`, tests, API contract, and schema
+documentation still provide a complete reusable library:
 
-## 2. Inspect the reusable implementation
+```text
+Candidate + Policy
+       |
+       v
+ deterministic reconcile
+       |
+       +--> resolved value or explicit conflict
+       +--> complete provenance
+       +--> machine-readable decision trace
+```
 
-Read:
+This is the primary architectural boundary of the project. The CLI is only a
+reference adapter.
+
+## 2. Read the reusable implementation
+
+Start with:
 
 ```text
 core/model.mbt
@@ -21,35 +35,51 @@ core/record_reconcile.mbt
 core/report.mbt
 ```
 
-These files contain the reusable reconciliation library.
+The critical behavior to verify is:
+
+- locked values are a non-configurable invariant;
+- confirmed values may dominate proposals under policy;
+- configured rank dimensions are applied deterministically;
+- different values with equal final priority remain conflicts;
+- input order is never an implicit tie-breaker;
+- original candidates survive into decision provenance.
 
 ## 3. Inspect the tests
 
-The tests demonstrate:
+The tests cover:
 
-- locked-value invariants;
+- empty candidate sets;
+- locked-value resolution and locked conflicts;
 - confirmed precedence;
-- authority/confidence/revision ordering;
-- exact-tie conflicts rather than array-order selection;
-- normalization semantics;
-- source-authority overrides;
-- field-level failure isolation;
+- authority / confidence / revision ordering;
+- exact-tie conflicts;
+- normalization semantics, including the ASCII-only case-fold contract;
+- `SourceKind` authority overrides;
+- record-level duplicate validation;
+- field-level conflict isolation;
 - provenance preservation;
-- wire validation and deterministic serialization.
+- wire validation, paths, and deterministic serialization.
 
-## 4. Run an end-to-end example
+## 4. Run the end-to-end examples
 
 ```bash
 moon update
 moon run cmd/sourcefuse examples/human-ocr-model/record.json
+moon run cmd/sourcefuse examples/device-human-model/record.json
+moon run cmd/sourcefuse examples/conflicted-record/record.json
 ```
 
-The result exposes the selected canonical value, rule trace, every considered
-candidate, and the sources that support the result.
+They demonstrate three distinct properties:
+
+```text
+human-ocr-model       confirmed precedence + normalization + provenance
+device-human-model    SourceKind authority override
+conflicted-record     explicit field conflict without discarding other fields
+```
 
 ## 5. Verify portability
 
-The reusable library is checked, tested, and built on:
+CI checks, tests, and builds the reusable library on:
 
 ```text
 wasm
@@ -58,11 +88,26 @@ js
 native
 ```
 
-Native CI also runs on Ubuntu and Windows. The CLI is explicitly native-only and
-does not reduce the portability contract of `core/` or `wire/`.
+Native CI runs on both Ubuntu and Windows. `cmd/sourcefuse` is explicitly
+native-only and does not alter the portability contract of `core/` or
+`wire/`.
 
-## 6. Verify the API boundary
+## 6. Verify the public contract
 
-Read `docs/API.md` and `docs/WIRE_SCHEMA.md`. CI generates MoonBit public
-interfaces and checks required entrypoints before a release can be considered
-green.
+Read:
+
+```text
+docs/API.md
+docs/POLICY.md
+docs/WIRE_SCHEMA.md
+docs/DIFFERENTIATION.md
+```
+
+CI executes `moon info --target native` and checks the generated public
+interfaces for required v0.1 entrypoints. It also validates the publishable
+module file set and release-version metadata.
+
+## 7. Verify a release
+
+The release checklist is in `docs/RELEASE.md`; version history and
+compatibility notes are in `CHANGELOG.md`.
