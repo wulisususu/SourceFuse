@@ -64,7 +64,7 @@ Gate 2 complete — normalization and configurable policy.
 
 Gate 3 complete — structured multi-field reconciliation and decision reports.
 
-Gate 4 in progress — versioned JSON wire schemas and adapters.
+Gate 4 complete — versioned JSON wire schemas and adapters.
 
 ## License
 
