@@ -28,22 +28,6 @@ fn required_string(
 }
 
 ///|
-fn required_bool(
-  object : Map[String, Json],
-  key : String,
-  path : String,
-) -> Result[Bool, WireError] {
-  match object.get(key) {
-    Some(True) => Ok(true)
-    Some(False) => Ok(false)
-    Some(_) =>
-      Err(wire_error(InvalidType, "{path}.{key}", "expected boolean"))
-    None =>
-      Err(wire_error(MissingField, "{path}.{key}", "required field is missing"))
-  }
-}
-
-///|
 fn required_int(
   object : Map[String, Json],
   key : String,
