@@ -80,4 +80,4 @@ canonical value.
 - Gate 4: ✅ stable v1 JSON wire schemas, structured parse errors, and adapter boundary.
 - Gate 4.5: ✅ provenance-preserving reports, semantic regression guards, and cross-target CI.
 - Gate 5: ✅ runnable examples, native reference CLI, and evaluation documentation.
-- Gate 6: next — submission hardening and release packaging.
+- Gate 6: ✅ public API contract, package audit, changelog, and v0.1.0 release hardening.

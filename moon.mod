@@ -17,3 +17,5 @@ keywords = [ "reconciliation", "provenance", "conflict-resolution", "decision-tr
 description = "Deterministic multi-source value arbitration and explainable reconciliation for MoonBit"
 
 preferred_target = "native"
+
+supported_targets = "+wasm+wasm-gc+js+native"

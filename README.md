@@ -2,6 +2,9 @@
 
 A deterministic multi-source value arbitration library for MoonBit.
 
+**Current release:** v0.1.0 · **Library targets:** wasm, wasm-gc, js, native ·
+**License:** Apache-2.0
+
 SourceFuse answers one narrow question:
 
 > When multiple sources propose different values for the same field, which value should win, and why?
@@ -88,6 +91,9 @@ guards, and cross-target CI hardening.
 Gate 5 complete — runnable examples, native reference CLI, quickstart, and
 evaluation-oriented documentation.
 
+Gate 6 complete — explicit public API contract, package/release checks,
+changelog, and v0.1.0 release hardening.
+
 ## Architecture
 
 ```text
@@ -146,5 +152,9 @@ The decision-report wire output includes both `considered` and `supporters`
 candidate arrays, so the rule trace can be audited against the original
 source evidence rather than only aggregate counts.
 
-See [docs/WIRE_SCHEMA.md](docs/WIRE_SCHEMA.md), [docs/CLI.md](docs/CLI.md),
-and [examples/README.md](examples/README.md).
+See [docs/WIRE_SCHEMA.md](docs/WIRE_SCHEMA.md), [docs/API.md](docs/API.md),
+[docs/CLI.md](docs/CLI.md), [docs/EVALUATION.md](docs/EVALUATION.md), and
+[examples/README.md](examples/README.md).
+
+Release history is in [CHANGELOG.md](CHANGELOG.md); the release procedure is in
+[docs/RELEASE.md](docs/RELEASE.md).
