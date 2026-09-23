@@ -1,0 +1,5 @@
+import {
+  "wulisususu/sourcefuse/core",
+  "moonbitlang/core/json",
+  "moonbitlang/core/debug",
+}
