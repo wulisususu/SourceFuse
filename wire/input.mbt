@@ -3,6 +3,16 @@
 pub const RECORD_SCHEMA : String = "sourcefuse.record.v1"
 
 ///|
+fn field_path(path : String, key : String) -> String {
+  path + "." + key
+}
+
+///|
+fn index_path(path : String, index : Int) -> String {
+  path + "[" + index.to_string() + "]"
+}
+
+///|
 fn parse_json(text : String) -> Result[Json, WireError] {
   try {
     Ok(@json.parse(text))
@@ -18,12 +28,11 @@ fn required_string(
   key : String,
   path : String,
 ) -> Result[String, WireError] {
+  let target = field_path(path, key)
   match object.get(key) {
     Some(String(value)) => Ok(value)
-    Some(_) =>
-      Err(wire_error(InvalidType, "{path}.{key}", "expected string"))
-    None =>
-      Err(wire_error(MissingField, "{path}.{key}", "required field is missing"))
+    Some(_) => Err(wire_error(InvalidType, target, "expected string"))
+    None => Err(wire_error(MissingField, target, "required field is missing"))
   }
 }
 
@@ -33,24 +42,26 @@ fn required_int(
   key : String,
   path : String,
 ) -> Result[Int, WireError] {
+  let target = field_path(path, key)
   match object.get(key) {
     Some(Number(value, ..)) => {
       let integer = value.to_int()
       if integer.to_double() == value {
         Ok(integer)
       } else {
-        Err(wire_error(InvalidValue, "{path}.{key}", "expected integer number"))
+        Err(wire_error(InvalidValue, target, "expected integer number"))
       }
     }
-    Some(_) =>
-      Err(wire_error(InvalidType, "{path}.{key}", "expected integer number"))
-    None =>
-      Err(wire_error(MissingField, "{path}.{key}", "required field is missing"))
+    Some(_) => Err(wire_error(InvalidType, target, "expected integer number"))
+    None => Err(wire_error(MissingField, target, "required field is missing"))
   }
 }
 
 ///|
-fn parse_source_kind(value : String, path : String) -> Result[@core.SourceKind, WireError] {
+fn parse_source_kind(
+  value : String,
+  path : String,
+) -> Result[@core.SourceKind, WireError] {
   match value {
     "human" => Ok(@core.Human)
     "device" => Ok(@core.Device)
@@ -69,7 +80,10 @@ fn parse_source_kind(value : String, path : String) -> Result[@core.SourceKind, 
 }
 
 ///|
-fn parse_state(value : String, path : String) -> Result[@core.CandidateState, WireError] {
+fn parse_state(
+  value : String,
+  path : String,
+) -> Result[@core.CandidateState, WireError] {
   match value {
     "proposed" => Ok(@core.Proposed)
     "confirmed" => Ok(@core.Confirmed)
@@ -126,10 +140,14 @@ fn parse_rank_dimension(
 }
 
 ///|
-fn parse_candidate(value : Json, path : String) -> Result[@core.Candidate, WireError] {
+fn parse_candidate(
+  value : Json,
+  path : String,
+) -> Result[@core.Candidate, WireError] {
   guard value is Object(object) else {
     return Err(wire_error(InvalidType, path, "candidate must be an object"))
   }
+
   let candidate_value = match required_string(object, "value", path) {
     Ok(value) => value
     Err(error) => return Err(error)
@@ -142,7 +160,10 @@ fn parse_candidate(value : Json, path : String) -> Result[@core.Candidate, WireE
     Ok(value) => value
     Err(error) => return Err(error)
   }
-  let source_kind = match parse_source_kind(source_kind_text, "{path}.source_kind") {
+  let source_kind = match parse_source_kind(
+    source_kind_text,
+    field_path(path, "source_kind"),
+  ) {
     Ok(value) => value
     Err(error) => return Err(error)
   }
@@ -162,10 +183,11 @@ fn parse_candidate(value : Json, path : String) -> Result[@core.Candidate, WireE
     Ok(value) => value
     Err(error) => return Err(error)
   }
-  let state = match parse_state(state_text, "{path}.state") {
+  let state = match parse_state(state_text, field_path(path, "state")) {
     Ok(value) => value
     Err(error) => return Err(error)
   }
+
   Ok(
     @core.candidate(
       candidate_value,
@@ -184,12 +206,13 @@ fn parse_source_authorities(
   object : Map[String, Json],
   path : String,
 ) -> Result[Array[@core.SourceAuthority], WireError] {
+  let target = field_path(path, "source_authorities")
   let out : Array[@core.SourceAuthority] = []
   match object.get("source_authorities") {
     None | Some(Null) => Ok(out)
     Some(Array(items)) => {
       for index, item in items {
-        let item_path = "{path}.source_authorities[{index}]"
+        let item_path = index_path(target, index)
         guard item is Object(fields) else {
           return Err(wire_error(InvalidType, item_path, "entry must be an object"))
         }
@@ -197,7 +220,10 @@ fn parse_source_authorities(
           Ok(value) => value
           Err(error) => return Err(error)
         }
-        let kind = match parse_source_kind(kind_text, "{item_path}.source_kind") {
+        let kind = match parse_source_kind(
+          kind_text,
+          field_path(item_path, "source_kind"),
+        ) {
           Ok(value) => value
           Err(error) => return Err(error)
         }
@@ -209,14 +235,7 @@ fn parse_source_authorities(
       }
       Ok(out)
     }
-    Some(_) =>
-      Err(
-        wire_error(
-          InvalidType,
-          "{path}.source_authorities",
-          "expected array",
-        ),
-      )
+    Some(_) => Err(wire_error(InvalidType, target, "expected array"))
   }
 }
 
@@ -225,30 +244,25 @@ fn parse_rank_order(
   object : Map[String, Json],
   path : String,
 ) -> Result[Array[@core.RankDimension], WireError] {
+  let target = field_path(path, "rank_order")
   let out : Array[@core.RankDimension] = []
   match object.get("rank_order") {
     None | Some(Null) =>
       Ok([@core.AuthorityRank, @core.ConfidenceRank, @core.RevisionRank])
     Some(Array(items)) => {
       for index, item in items {
+        let item_path = index_path(target, index)
         guard item is String(text) else {
-          return Err(
-            wire_error(
-              InvalidType,
-              "{path}.rank_order[{index}]",
-              "expected string",
-            ),
-          )
+          return Err(wire_error(InvalidType, item_path, "expected string"))
         }
-        match parse_rank_dimension(text, "{path}.rank_order[{index}]") {
+        match parse_rank_dimension(text, item_path) {
           Ok(value) => out.push(value)
           Err(error) => return Err(error)
         }
       }
       Ok(out)
     }
-    Some(_) =>
-      Err(wire_error(InvalidType, "{path}.rank_order", "expected array"))
+    Some(_) => Err(wire_error(InvalidType, target, "expected array"))
   }
 }
 
@@ -264,13 +278,17 @@ fn parse_policy_json(
   let normalization = match object.get("normalization") {
     None | Some(Null) => @core.Exact
     Some(String(text)) =>
-      match parse_normalization(text, "{path}.normalization") {
+      match parse_normalization(text, field_path(path, "normalization")) {
         Ok(value) => value
         Err(error) => return Err(error)
       }
     Some(_) =>
       return Err(
-        wire_error(InvalidType, "{path}.normalization", "expected string"),
+        wire_error(
+          InvalidType,
+          field_path(path, "normalization"),
+          "expected string",
+        ),
       )
   }
 
@@ -282,7 +300,7 @@ fn parse_policy_json(
       return Err(
         wire_error(
           InvalidType,
-          "{path}.confirmed_dominates",
+          field_path(path, "confirmed_dominates"),
           "expected boolean",
         ),
       )
@@ -296,6 +314,7 @@ fn parse_policy_json(
     Ok(value) => value
     Err(error) => return Err(error)
   }
+
   Ok(
     @core.policy(
       normalization,
@@ -311,23 +330,17 @@ fn parse_candidates(
   object : Map[String, Json],
   path : String,
 ) -> Result[Array[@core.Candidate], WireError] {
+  let target = field_path(path, "candidates")
   guard object.get("candidates") is Some(Array(items)) else {
     return match object.get("candidates") {
-      None =>
-        Err(
-          wire_error(
-            MissingField,
-            "{path}.candidates",
-            "required field is missing",
-          ),
-        )
-      _ =>
-        Err(wire_error(InvalidType, "{path}.candidates", "expected array"))
+      None => Err(wire_error(MissingField, target, "required field is missing"))
+      _ => Err(wire_error(InvalidType, target, "expected array"))
     }
   }
+
   let out : Array[@core.Candidate] = []
   for index, item in items {
-    match parse_candidate(item, "{path}.candidates[{index}]") {
+    match parse_candidate(item, index_path(target, index)) {
       Ok(candidate) => out.push(candidate)
       Err(error) => return Err(error)
     }
@@ -336,10 +349,14 @@ fn parse_candidates(
 }
 
 ///|
-fn parse_field(value : Json, path : String) -> Result[@core.FieldInput, WireError] {
+fn parse_field(
+  value : Json,
+  path : String,
+) -> Result[@core.FieldInput, WireError] {
   guard value is Object(object) else {
     return Err(wire_error(InvalidType, path, "field must be an object"))
   }
+
   let name = match required_string(object, "name", path) {
     Ok(value) => value
     Err(error) => return Err(error)
@@ -348,10 +365,11 @@ fn parse_field(value : Json, path : String) -> Result[@core.FieldInput, WireErro
     Ok(value) => value
     Err(error) => return Err(error)
   }
+
   match object.get("policy") {
     None | Some(Null) => Ok(@core.field(name, candidates))
     Some(value) =>
-      match parse_policy_json(value, "{path}.policy") {
+      match parse_policy_json(value, field_path(path, "policy")) {
         Ok(policy) => Ok(@core.field_with_policy(name, candidates, policy))
         Err(error) => Err(error)
       }
@@ -378,7 +396,7 @@ pub fn parse_record_document(text : String) -> Result[@core.RecordInput, WireErr
       wire_error(
         UnsupportedSchema,
         "$.schema_version",
-        "unsupported schema version: {schema}",
+        "unsupported schema version: " + schema,
       ),
     )
   }
@@ -392,20 +410,22 @@ pub fn parse_record_document(text : String) -> Result[@core.RecordInput, WireErr
       }
   }
 
+  let fields_path = "$.fields"
   guard object.get("fields") is Some(Array(items)) else {
     return match object.get("fields") {
       None =>
-        Err(wire_error(MissingField, "$.fields", "required field is missing"))
-      _ => Err(wire_error(InvalidType, "$.fields", "expected array"))
+        Err(wire_error(MissingField, fields_path, "required field is missing"))
+      _ => Err(wire_error(InvalidType, fields_path, "expected array"))
     }
   }
 
   let fields : Array[@core.FieldInput] = []
   for index, item in items {
-    match parse_field(item, "$.fields[{index}]") {
+    match parse_field(item, index_path(fields_path, index)) {
       Ok(field) => fields.push(field)
       Err(error) => return Err(error)
     }
   }
+
   Ok(@core.record_with_policy(fields, default))
 }
