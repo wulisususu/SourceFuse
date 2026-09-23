@@ -28,6 +28,26 @@ fn conflict_text(conflict : @core.ConflictKind) -> String {
 }
 
 ///|
+fn source_kind_text(source_kind : @core.SourceKind) -> String {
+  match source_kind {
+    @core.Human => "human"
+    @core.Device => "device"
+    @core.Rule => "rule"
+    @core.Model => "model"
+    @core.External => "external"
+  }
+}
+
+///|
+fn candidate_state_text(state : @core.CandidateState) -> String {
+  match state {
+    @core.Proposed => "proposed"
+    @core.Confirmed => "confirmed"
+    @core.Locked => "locked"
+  }
+}
+
+///|
 fn rule_text(rule : @core.DecisionRule) -> String {
   match rule {
     @core.EmptyCandidates => "empty_candidates"
@@ -56,6 +76,19 @@ fn issue_json(issue : @core.RecordIssue) -> Json {
 }
 
 ///|
+fn candidate_json(candidate : @core.Candidate) -> Json {
+  Json::object({
+    "value": Json::string(candidate.value),
+    "source_id": Json::string(candidate.source_id),
+    "source_kind": Json::string(source_kind_text(candidate.source_kind)),
+    "authority": Json::number(candidate.authority.to_double()),
+    "confidence": Json::number(candidate.confidence.to_double()),
+    "revision": Json::number(candidate.revision.to_double()),
+    "state": Json::string(candidate_state_text(candidate.state)),
+  })
+}
+
+///|
 fn trace_json(step : @core.DecisionStep) -> Json {
   Json::object({
     "rule": Json::string(rule_text(step.rule)),
@@ -68,6 +101,14 @@ fn field_decision_json(field : @core.FieldDecision) -> Json {
   let trace : Array[Json] = []
   for step in field.trace {
     trace.push(trace_json(step))
+  }
+  let considered : Array[Json] = []
+  for candidate in field.considered {
+    considered.push(candidate_json(candidate))
+  }
+  let supporters : Array[Json] = []
+  for candidate in field.supporters {
+    supporters.push(candidate_json(candidate))
   }
   let value = match field.value {
     Some(value) => Json::string(value)
@@ -84,6 +125,8 @@ fn field_decision_json(field : @core.FieldDecision) -> Json {
     "conflict": conflict,
     "candidate_count": Json::number(field.candidate_count.to_double()),
     "supporter_count": Json::number(field.supporter_count.to_double()),
+    "considered": Json::array(considered),
+    "supporters": Json::array(supporters),
     "trace": Json::array(trace),
   })
 }

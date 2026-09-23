@@ -183,6 +183,28 @@ Shape:
       "conflict": null,
       "candidate_count": 3,
       "supporter_count": 2,
+      "considered": [
+        {
+          "value": "张珊",
+          "source_id": "operator",
+          "source_kind": "human",
+          "authority": 100,
+          "confidence": 100,
+          "revision": 2,
+          "state": "confirmed"
+        }
+      ],
+      "supporters": [
+        {
+          "value": "张珊",
+          "source_id": "operator",
+          "source_kind": "human",
+          "authority": 100,
+          "confidence": 100,
+          "revision": 2,
+          "state": "confirmed"
+        }
+      ],
       "trace": [
         {
           "rule": "confirmed_dominates",
@@ -203,6 +225,22 @@ Field status values:
 
 - `resolved`
 - `conflict`
+
+Each field also carries two provenance arrays:
+
+- `considered`: every original candidate supplied for that field;
+- `supporters`: every original candidate whose normalized value supports the
+  resolved canonical value; empty for unresolved conflicts.
+
+Candidate objects in these arrays use the same provenance/ranking shape as the
+input candidate schema. `candidate_count` and `supporter_count` are
+convenience summaries of those arrays. Supporter count is explanatory evidence,
+not a majority-voting rule.
+
+The decision `trace` records the deterministic rule path. Consumers that need
+an auditable explanation should read the trace together with `considered` and
+`supporters`, which identify exactly which source evidence participated in
+and corroborated the decision.
 
 Conflict identifiers:
 
@@ -228,6 +266,8 @@ Arrays preserve their semantic order:
 
 - fields preserve declaration order;
 - issues preserve deterministic detection order;
+- considered candidates preserve caller order;
+- supporters preserve caller order among corroborating candidates;
 - decision traces preserve rule application order.
 
 Consumers should rely on JSON field names rather than object-member textual

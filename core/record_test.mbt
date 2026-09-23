@@ -156,7 +156,11 @@ test "decision report summarizes field results without losing traces" {
   assert_eq(report.conflicted_fields, 2)
   assert_eq(report.fields[0].field_name, "name")
   assert_true(report.fields[0].trace.length() > 0)
+  assert_eq(report.fields[0].considered.length(), 2)
+  assert_eq(report.fields[0].considered[0].source_id, "human")
   assert_eq(report.fields[1].candidate_count, 2)
+  assert_eq(report.fields[1].considered.length(), 2)
+  assert_eq(report.fields[1].supporters.length(), 0)
 }
 
 ///|
@@ -183,6 +187,10 @@ test "decision report preserves normalized field resolution summary" {
   assert_eq(report.conflicted_fields, 0)
   assert_eq(report.fields[0].value, Some("alice"))
   assert_eq(report.fields[0].supporter_count, 2)
+  assert_eq(report.fields[0].considered.length(), 2)
+  assert_eq(report.fields[0].supporters.length(), 2)
+  assert_eq(report.fields[0].supporters[0].value, " Alice ")
+  assert_eq(report.fields[0].supporters[1].source_id, "model")
 }
 
 ///|

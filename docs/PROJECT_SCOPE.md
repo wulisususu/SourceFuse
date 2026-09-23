@@ -18,6 +18,13 @@ Those sources can disagree. Choosing the largest confidence score is insufficien
 
 SourceFuse turns this into an explicit data model and deterministic policy engine.
 
+## v0.1 value domain
+
+The v0.1 core reconciles textual `String` field values. Applications with
+numeric, date, identifier, enum, or structured domain values should convert
+them to a stable textual canonical form before creating candidates. Typed value
+families are intentionally outside the v0.1 contract.
+
 ## v0.1 invariants
 
 1. Same input candidates + same policy must always produce the same result.
@@ -56,6 +63,14 @@ Initial deterministic precedence:
 
 No system clock is used. `revision` is supplied by the caller.
 
+Candidate multiplicity is not a ranking dimension in v0.1. `supporter_count`
+reports corroborating evidence after a decision; it does not implement majority
+voting or probabilistic truth discovery.
+
+Decision traces are audited together with provenance: every field report keeps
+the complete considered candidates plus the candidates supporting the resolved
+canonical value.
+
 ## Gate plan
 
 - Gate 0: ✅ scope, invariants, competition differentiation.
@@ -63,5 +78,6 @@ No system clock is used. `revision` is supplied by the caller.
 - Gate 2: ✅ normalization + configurable reconciliation policy.
 - Gate 3: ✅ structured multi-field reconciliation, record conflicts, decision reports.
 - Gate 4: ✅ stable v1 JSON wire schemas, structured parse errors, and adapter boundary.
+- Gate 4.5: ✅ provenance-preserving reports, semantic regression guards, and cross-target CI.
 - Gate 5: next — examples, CLI/demo adapter, documentation.
-- Gate 6: cross-target CI and submission hardening.
+- Gate 6: submission hardening and release packaging.

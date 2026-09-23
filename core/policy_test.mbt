@@ -31,6 +31,10 @@ test "normalization modes are explicit and deterministic" {
     @core.normalize_value(" 张珊 ", @core.AsciiTrimCaseFold),
     "张珊",
   )
+  assert_eq(
+    @core.normalize_value(" Ä Σ API ", @core.AsciiTrimCaseFold),
+    "Ä Σ api",
+  )
 }
 
 ///|

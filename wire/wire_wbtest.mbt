@@ -136,6 +136,20 @@ test "end to end adapter parses reconciles and emits report v1" {
   assert_eq(name_field.get("name"), Some(Json::string("name")))
   assert_eq(name_field.get("value"), Some(Json::string("alice")))
   assert_eq(name_field.get("supporter_count"), Some(Json::number(2.0)))
+  guard name_field.get("considered") is Some(Array(considered)) else {
+    fail("expected considered provenance")
+  }
+  assert_eq(considered.length(), 2)
+  guard considered[0] is Object(first_considered) else {
+    fail("expected considered candidate object")
+  }
+  assert_eq(first_considered.get("source_id"), Some(Json::string("human")))
+  assert_eq(first_considered.get("source_kind"), Some(Json::string("human")))
+  assert_eq(first_considered.get("state"), Some(Json::string("proposed")))
+  guard name_field.get("supporters") is Some(Array(supporters)) else {
+    fail("expected supporter provenance")
+  }
+  assert_eq(supporters.length(), 2)
 }
 
 ///|
