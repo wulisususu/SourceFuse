@@ -58,10 +58,10 @@ No system clock is used. `revision` is supplied by the caller.
 
 ## Gate plan
 
-- Gate 0: scope, invariants, competition differentiation.
-- Gate 1: candidate/source/result model.
-- Gate 2: deterministic reconciliation engine.
-- Gate 3: conflicts and decision trace.
-- Gate 4: policy customization and normalization.
+- Gate 0: ✅ scope, invariants, competition differentiation.
+- Gate 1: ✅ candidate/source/result model + deterministic core.
+- Gate 2: ✅ normalization + configurable reconciliation policy.
+- Gate 3: next — richer conflicts, batch/field reconciliation, decision trace reporting.
+- Gate 4: application adapters and serialization.
 - Gate 5: examples, CLI/demo adapter, documentation.
 - Gate 6: cross-target CI and submission hardening.
