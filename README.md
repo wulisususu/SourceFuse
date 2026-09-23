@@ -36,9 +36,31 @@ The first release focuses on pure MoonBit reconciliation logic:
 
 See [docs/PROJECT_SCOPE.md](docs/PROJECT_SCOPE.md).
 
+## Policy example
+
+```moonbit
+let policy = @sourcefuse.policy(
+  @sourcefuse.AsciiTrimCaseFold,
+  true,
+  [@sourcefuse.AuthorityRank, @sourcefuse.ConfidenceRank],
+  [
+    @sourcefuse.source_authority(@sourcefuse.Human, 100),
+    @sourcefuse.source_authority(@sourcefuse.Device, 80),
+    @sourcefuse.source_authority(@sourcefuse.Model, 20),
+  ],
+)
+
+let result = @sourcefuse.reconcile_with_policy(candidates, policy)
+```
+
+The resolved value is canonicalized by the selected normalization mode, while
+the original candidate values remain available in provenance.
+
 ## Status
 
-Gate 0 — scope and architecture.
+Gate 1 complete — deterministic reconciliation core.
+
+Gate 2 in progress — normalization and configurable policy.
 
 ## License
 
