@@ -62,6 +62,8 @@ Gate 1 complete — deterministic reconciliation core.
 
 Gate 2 complete — normalization and configurable policy.
 
+Gate 3 in progress — structured multi-field reconciliation and decision reports.
+
 ## License
 
 Apache-2.0
