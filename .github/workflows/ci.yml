@@ -53,6 +53,15 @@ jobs:
       - name: Build
         run: moon build --target native
 
+      - name: Enforce core dependency boundary
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          if grep -R -n -E 'moonbitlang/core/json|wulisususu/sourcefuse/wire' core --include='*.mbt' --include='moon.pkg'; then
+            echo "core/ must not depend on JSON or wire adapters"
+            exit 1
+          fi
+
       - name: Validate package
         if: runner.os == 'Linux'
         run: moon package --list
