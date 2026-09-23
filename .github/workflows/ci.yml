@@ -9,7 +9,7 @@ env:
   MOONBIT_VERSION: 0.10.14+7d59c7ec9
 
 jobs:
-  core:
+  native:
     strategy:
       fail-fast: false
       matrix:
@@ -44,17 +44,45 @@ jobs:
       - name: Resolve dependencies
         run: moon update
 
-      - name: Check
+      - name: Check native
         run: moon check --target native --deny-warn
 
-      - name: Test
+      - name: Test native
         run: moon test --target native
 
-      - name: Build
+      - name: Build native
         run: moon build --target native
 
+  cross-target:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install MoonBit
+        shell: bash
+        run: |
+          curl --retry 3 --retry-all-errors --retry-delay 3 -fsSL \
+            https://cli.moonbitlang.com/install/unix.sh \
+            | bash -s "$MOONBIT_VERSION"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Show toolchain
+        run: moon version --all
+
+      - name: Resolve dependencies
+        run: moon update
+
+      - name: Check all portable targets
+        run: moon check --target all --deny-warn
+
+      - name: Test all portable targets
+        run: moon test --target all
+
+      - name: Build all portable targets
+        run: moon build --target all
+
       - name: Enforce core dependency boundary
-        if: runner.os == 'Linux'
         shell: bash
         run: |
           if grep -R -n -E 'moonbitlang/core/json|wulisususu/sourcefuse/wire' core --include='*.mbt' --include='moon.pkg'; then
@@ -63,5 +91,4 @@ jobs:
           fi
 
       - name: Validate package
-        if: runner.os == 'Linux'
         run: moon package --list

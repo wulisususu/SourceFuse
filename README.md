@@ -25,7 +25,9 @@ reason: confirmed human value outranks unconfirmed candidates
 
 SourceFuse is **not** an HTTP client, API testing tool, mock server, VCR, OpenAPI validator, workflow engine, database merge system, or LLM agent framework.
 
-The first release focuses on pure MoonBit reconciliation logic:
+The first release focuses on pure MoonBit reconciliation logic. In v0.1,
+candidate values are textual `String` fields; callers should canonicalize
+domain-specific numbers, dates, identifiers, or enums before reconciliation.
 
 - candidate/source model
 - authority and confidence policy
@@ -54,7 +56,8 @@ let result = @sourcefuse.reconcile_with_policy(candidates, policy)
 ```
 
 The resolved value is canonicalized by the selected normalization mode, while
-the original candidate values remain available in provenance.
+the original candidate values remain available in provenance. `supporter_count`
+is explanatory only: SourceFuse does not use source count as a voting rule.
 
 ## Status
 
@@ -65,6 +68,9 @@ Gate 2 complete — normalization and configurable policy.
 Gate 3 complete — structured multi-field reconciliation and decision reports.
 
 Gate 4 complete — versioned JSON wire schemas and adapters.
+
+Gate 4.5 complete — provenance-preserving decision reports, semantic regression
+guards, and cross-target CI hardening.
 
 ## License
 
@@ -107,5 +113,9 @@ match @wire.reconcile_record_json(text, pretty=true) {
   Err(error) => println(error.message)
 }
 ```
+
+The decision-report wire output includes both `considered` and `supporters`
+candidate arrays, so the rule trace can be audited against the original
+source evidence rather than only aggregate counts.
 
 See [docs/WIRE_SCHEMA.md](docs/WIRE_SCHEMA.md).

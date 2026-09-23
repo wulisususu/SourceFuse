@@ -1,8 +1,9 @@
 ///|
 /// Compact report entry for one field.
 ///
-/// The full candidate provenance remains available from RecordResult; this
-/// view is intended for explanation, UI adapters, or later serializers.
+/// The report deliberately carries the original considered/supporting
+/// candidates so adapters can preserve provenance instead of exposing only
+/// aggregate counts.
 pub(all) struct FieldDecision {
   field_name : String
   status : ReconcileStatus
@@ -10,6 +11,8 @@ pub(all) struct FieldDecision {
   conflict : ConflictKind?
   candidate_count : Int
   supporter_count : Int
+  considered : Array[Candidate]
+  supporters : Array[Candidate]
   trace : Array[DecisionStep]
 } derive(Eq, @debug.Debug)
 
@@ -29,6 +32,15 @@ pub(all) struct DecisionReport {
 
 pub extend DecisionReport with Eq::{not_equal, equal}
 pub extend DecisionReport with @debug.Debug::{to_repr}
+
+///|
+fn copy_report_candidates(candidates : Array[Candidate]) -> Array[Candidate] {
+  let out : Array[Candidate] = []
+  for candidate in candidates {
+    out.push(candidate)
+  }
+  out
+}
 
 ///|
 fn copy_trace(trace : Array[DecisionStep]) -> Array[DecisionStep] {
@@ -60,6 +72,8 @@ pub fn decision_report(result : RecordResult) -> DecisionReport {
       conflict: field.result.conflict,
       candidate_count: field.result.considered.length(),
       supporter_count: field.result.supporters.length(),
+      considered: copy_report_candidates(field.result.considered),
+      supporters: copy_report_candidates(field.result.supporters),
       trace: copy_trace(field.result.trace),
     })
   }
